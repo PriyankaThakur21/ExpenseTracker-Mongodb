@@ -31,7 +31,7 @@ exports.signinUsers = async (req, res, next)=>{
     const {name, email, password} = req.body;
     const emailExists= await emailPresent(email);
     if(emailExists===true){
-        return res.json('Email should be unique');
+        return res.status(404).json('Email should be unique');
     }
     if(isStringInValid(name) || isStringInValid(email) || isStringInValid(password)){
         return res.status(404).json('Something is Missing');
@@ -53,18 +53,18 @@ exports.signinUsers = async (req, res, next)=>{
         try{
         const {email, password} = req.body;
         if(isStringInValid(email) || isStringInValid(password)){
-            return res.json('Something is Missing');
+            return res.status(404).json('Something is Missing');
         }
         const emailExists = await emailPresent(email);
         if(emailExists===false){
-            return res.json('User does not exists');
+            return res.status(404).json('User does not exists');
         }
         const passwordExists = await passwordPresent(password);
         if(passwordExists===false){
-            return res.json('Password is not correct');
+            return res.status(401).json('Password is not correct');
         }
         if(emailExists===true && passwordExists===true){
-        res.json('Successfully logged in');
+        res.status(200).json('Successfully logged in');
         }
         }
         catch(err){
