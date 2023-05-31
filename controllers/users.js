@@ -1,4 +1,5 @@
 const User = require('../models/users');
+const bcrypt = require('bcrypt');
 
 function isStringInValid(string){
     if(string==undefined || string.length===0) return true;
@@ -16,18 +17,8 @@ async function emailPresent(email){
     }
 }
 
-async function passwordPresent(password){
-    try{
-        const paswrd = await User.findOne({where: {password: password}});
-        if(paswrd===null) return false;
-        else return true;
-    }
-    catch(error){
-        console.log(error);
-    }
-}
-
 exports.signinUsers = async (req, res, next)=>{
+    try{
     const {name, email, password} = req.body;
     const emailExists= await emailPresent(email);
     if(emailExists===true){
@@ -36,14 +27,11 @@ exports.signinUsers = async (req, res, next)=>{
     if(isStringInValid(name) || isStringInValid(email) || isStringInValid(password)){
         return res.status(404).json('Something is Missing');
     }
-    try{
-        const data = await User.create({
-        name: name,
-        email: email,
-        password: password
-    });
-    res.status(201).json('Successfully Registered');
-    }
+        bcrypt.hash(password, 10, async(err, hash)=>{
+        const data = await User.create({name, email, password:hash});
+        res.status(201).json('Successfully Registered');
+    })
+}
     catch(error){
         console.log(error);
     }
@@ -55,17 +43,21 @@ exports.signinUsers = async (req, res, next)=>{
         if(isStringInValid(email) || isStringInValid(password)){
             return res.status(404).json('Something is Missing');
         }
+
         const emailExists = await emailPresent(email);
         if(emailExists===false){
             return res.status(404).json('User does not exists');
         }
-        const passwordExists = await passwordPresent(password);
-        if(passwordExists===false){
-            return res.status(401).json('Password is not correct');
-        }
-        if(emailExists===true && passwordExists===true){
-        res.status(200).json('Successfully logged in');
-        }
+
+        const user = await User.findOne({where: {email: email}});
+        bcrypt.compare(password, user.password, (err, result)=>{
+            if(result===false){
+                return res.status(401).json('Password is not correct');
+            }
+            if(result===true){
+                res.status(200).json('Successfully logged in');
+            }
+        })
         }
         catch(err){
             console.log(err);
