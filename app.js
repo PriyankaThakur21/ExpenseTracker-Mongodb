@@ -8,13 +8,16 @@ const sequelize = require('./database');
 
 const router = require('./routers');
 
+const Users = require('./models/users');
+const Expenses = require('./models/expense');
+
 app.use(express.json());
 
 app.use(router);
 
 sequelize.sync()
 .then((res)=>{
-    app.listen(3000);
+    app.listen(8080);
 })
 .catch((err)=>{
     console.log(err);
