@@ -1,5 +1,26 @@
 const User = require('../models/users');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+exports.decodeToken = async(req, res, next)=>{
+    try{
+        const token = req.header('Authorization')
+        const user = jwt.verify(token, 'eaT5QsOpvS8K0qDtgVmwCoINRnkxLji4')
+        console.log(user.id);
+        const fuser = await User.findByPk(user.id);
+        console.log(fuser);
+        req.user=fuser;
+        next();
+        }
+        catch(error){
+            console.log(error);
+            res.json('User Not found!');
+        }
+}
+
+function generateAccessToken(id){
+    return jwt.sign({id: id}, 'eaT5QsOpvS8K0qDtgVmwCoINRnkxLji4');
+}
 
 function isStringInValid(string){
     if(string==undefined || string.length===0) return true;
@@ -55,7 +76,7 @@ exports.signinUsers = async (req, res, next)=>{
                 return res.status(401).json('Password is not correct');
             }
             if(result===true){
-                res.status(200).json('Successfully logged in');
+                res.status(201).json({message:'Successfully logged in', token: generateAccessToken(user.id)});
             }
         })
         }

@@ -15,7 +15,11 @@ app.use(express.json());
 
 app.use(router);
 
-sequelize.sync()
+Users.hasMany(Expenses);
+Expenses.belongsTo(Users);
+
+sequelize.sync(
+)
 .then((res)=>{
     app.listen(8080);
 })

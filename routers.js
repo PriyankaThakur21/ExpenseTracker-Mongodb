@@ -10,7 +10,7 @@ router.post('/login', UserController.loginUsers);
 
 router.post('/postexpense', expenseController.postExpense);
 
-router.get('/getexpenses', expenseController.getExpenses);
+router.get('/getexpenses', UserController.decodeToken, expenseController.getExpenses);
 
 router.delete('/deleteexpense/:id', expenseController.deleteExpenses);
 
