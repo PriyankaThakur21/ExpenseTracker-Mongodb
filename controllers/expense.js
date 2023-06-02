@@ -1,17 +1,10 @@
 const Expense = require('../models/expense');
 
 exports.postExpense = async(req, res, next)=>{
-    const expense = req.body.expense;
-    const description = req.body.description;
-    const category = req.body.category;
-    console.log(req.body);
+    const{expense, description, category} = req.body;
     try{
-    const data = await Expense.create({
-        expense: expense,
-        description: description,
-        category: category
-    });
-    console.log(data);
+    const data = await Expense.create({expense, description, category, userId:req.user.id});
+    console.log('Post  '+data);
     res.json(data);
 }
 catch(error){
@@ -33,7 +26,7 @@ exports.getExpenses = async (req, res, next)=>{
 exports.deleteExpenses = async(req, res, next)=>{
     const ExpenseId = req.params.id;
     try{
-    const deleteExpense = await Expense.destroy({where: {id: ExpenseId}});
+    const deleteExpense = await Expense.destroy({where: {id: ExpenseId, userId:req.user.id}});
     res.json(deleteExpense);
     }
     catch(error){
