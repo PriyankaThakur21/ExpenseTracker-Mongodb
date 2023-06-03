@@ -61,7 +61,7 @@ exports.signinUsers = async (req, res, next)=>{
     }
     }
 
-    exports.loginUsers = async(req, res, next)=>{
+exports.loginUsers = async(req, res, next)=>{
         try{
         const {email, password} = req.body;
         if(isStringInValid(email) || isStringInValid(password)){
@@ -79,7 +79,7 @@ exports.signinUsers = async (req, res, next)=>{
                 return res.status(401).json('Password is not correct');
             }
             if(result===true){
-                res.status(201).json({message:'Successfully logged in', token: generateAccessToken(user.id)});
+                res.status(201).json({message:'Successfully logged in', isPremiumUser: user.isPremiumUser, token: generateAccessToken(user.id)});
             }
         })
         }

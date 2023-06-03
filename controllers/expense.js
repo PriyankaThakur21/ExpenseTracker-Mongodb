@@ -16,7 +16,7 @@ exports.getExpenses = async (req, res, next)=>{
     try{
     const expenses = await Expense.findAll({where:{userId: req.user.id}});
     console.log('Priyanka'+expenses)
-    res.status(201).json(expenses);
+    res.status(201).json({expense: expenses, premiumUser: req.user.isPremiumUser});
     }
     catch(error){
         console.log(error);

@@ -8,6 +8,4 @@ router.get('/purchasepremium', UserController.decodeToken, orderController.purch
 
 router.post('/transactionSuccess', UserController.decodeToken, orderController.transactionSuccess);
 
-router.post('/transactionFailed', UserController.decodeToken, orderController.transactionFailed);
-
 module.exports = router;
