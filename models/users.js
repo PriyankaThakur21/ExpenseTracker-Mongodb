@@ -7,16 +7,13 @@ const User = sequelize.define('user',{
         autoIncrement: true,
         primaryKey: true
     },
-    name: {
-        type: Sequelize.STRING,
-    },
+    name: Sequelize.STRING,
     email: {
         type: Sequelize.STRING,
         unique: true
     },
-    password: {
-        type: Sequelize.STRING,
-    }
+    password: Sequelize.STRING,
+    isPremiumUser: Sequelize.BOOLEAN
 })
 
 module.exports = User;

@@ -2,10 +2,13 @@ const User = require('../models/users');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+require('dotenv').config()
+
 exports.decodeToken = async(req, res, next)=>{
     try{
-        const token = req.header('Authorization')
-        const user = jwt.verify(token, 'eaT5QsOpvS8K0qDtgVmwCoINRnkxLji4')
+        console.log(process.env.TOKEN_SECRET)
+        const token = req.header('Authorization');
+        const user = jwt.verify(token, process.env.TOKEN_SECRET);
         console.log(user.id);
         const fuser = await User.findByPk(user.id);
         console.log(fuser);
@@ -49,7 +52,7 @@ exports.signinUsers = async (req, res, next)=>{
         return res.status(404).json('Something is Missing');
     }
         bcrypt.hash(password, 10, async(err, hash)=>{
-        const data = await User.create({name, email, password:hash});
+        const data = await User.create({name, email, password:hash, isPremiumUser:false});
         res.status(201).json('Successfully Registered');
     })
 }
