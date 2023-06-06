@@ -51,6 +51,7 @@ async function uploadToS3(data, filename){
             else{
                 console.log('success', s3response);
                 resolve(s3response.Location);
+                
             }
         })})
     }
