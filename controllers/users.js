@@ -6,12 +6,9 @@ require('dotenv').config()
 
 exports.decodeToken = async(req, res, next)=>{
     try{
-        console.log(process.env.TOKEN_SECRET)
         const token = req.header('Authorization');
         const user = jwt.verify(token, process.env.TOKEN_SECRET);
-        console.log(user.id);
         const fuser = await User.findByPk(user.id);
-        console.log(fuser);
         req.user=fuser;
         next();
         }
