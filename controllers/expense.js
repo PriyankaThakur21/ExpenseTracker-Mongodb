@@ -33,28 +33,27 @@ exports.getExpenses = async (req, res, next)=>{
     try{
         console.log(req.query)
         const page = req.query.page;
-        console.log(page);
+        const rowslimit = req.header('rowslimit');
+        console.log(rowslimit)
         let totalItems = await Expense.count();
-        console.log(totalItems);
-        console.log(page)
-    const expenses = await Expense.findAll({where:{userId: req.user.id}}, {
-        offset: page - 1 * 5,
-        limit: 5
+        const expenses = await req.user.getExpenses({
+        offset: (page - 1) * rowslimit,
+        limit: Number(rowslimit),
+        order: [['id', 'DESC']]
     });
-    console.log(page)
     res.status(201).json({
         expense: expenses,
         premiumUser: req.user.isPremiumUser,
         currentPage: page,
+        nextPage: Number(page) + 1,
         hasNextPage: page * 5 < totalItems,
-        nextPage: page + 1,
         hasPreviousPage: page > 1,
         previousPage: page - 1,
-        lastPage : Math.ceil(totalItems/5)
         });
     }
     catch(error){
         console.log(error);
+        res.status(500).json('Something went wrong');
     }
 }
 
