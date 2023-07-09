@@ -1,14 +1,13 @@
 const User = require('../models/users');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config()
 
 exports.decodeToken = async(req, res, next)=>{
     try{
         const token = req.header('Authorization');
         const user = jwt.verify(token, process.env.TOKEN_SECRET);
-        const fuser = await User.findByPk(user.id);
+        const fuser = await User.findById(user.id);
         req.user=fuser;
         next();
         }
@@ -29,7 +28,7 @@ function isStringInValid(string){
 
 async function emailPresent(email){
     try{
-        const user = await User.findOne({where: {email: email}});
+        const user = await User.findOne({email: email});
         if(user===null) return false;
         else return true;
     }
@@ -49,7 +48,13 @@ exports.signinUsers = async (req, res, next)=>{
         return res.status(404).json('Something is Missing');
     }
         bcrypt.hash(password, 10, async(err, hash)=>{
-        const data = await User.create({name, email, password:hash, isPremiumUser:false});
+        const data = await User.create({
+            name:name, 
+            email:email, 
+            password:hash, 
+            isPremiumUser:false,
+            totalExpense:Number(0)
+        });
         res.status(201).json('Successfully Registered');
     })
 }
@@ -70,7 +75,7 @@ exports.loginUsers = async(req, res, next)=>{
             return res.status(404).json('User does not exists');
         }
 
-        const user = await User.findOne({where: {email: email}});
+        const user = await User.findOne({email: email});
         bcrypt.compare(password, user.password, (err, result)=>{
             if(result===false){
                 return res.status(401).json('Password is not correct');

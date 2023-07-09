@@ -1,10 +1,11 @@
 const User = require('../models/users');
+const Expense = require('../models/expense');
 const AWS = require('aws-sdk');
 require('dotenv').config()
 
 exports.getLeaderboard = async(req, res, next)=>{
     try{
-    const leaderBoardUsers = await User.findAll({order: [['totalExpense', 'DESC']]});
+    const leaderBoardUsers = await User.find().sort({ 'totalExpense': -1 }).exec();
     res.status(202).json(leaderBoardUsers);
     }   
     catch(err){
@@ -15,7 +16,7 @@ exports.getLeaderboard = async(req, res, next)=>{
 
 exports.downloadfile = async (req, res, next)=>{
     try{
-    const expenses = await req.user.getExpenses();
+    const expenses = await Expense.find({userId: req.user.id});
     const stringifyexpenses = JSON.stringify(expenses);
     const userid = req.user.id;
     const filename = `Expense${userid}/${new Date()}.txt`;

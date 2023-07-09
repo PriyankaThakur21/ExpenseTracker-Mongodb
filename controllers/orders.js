@@ -11,7 +11,11 @@ exports.purchasePremium = async (req, res, next)=>{
         if(err){
             console.log(err);
         }
-        req.user.createOrder({orderId: order.id, status: 'PENDING'}).then(()=>{
+        Order.create({
+            orderId: order.id, 
+            status: 'PENDING',
+            userId: req.user.id
+        }).then(()=>{
             return res.status(201).json({order, key_id: rzp.key_id});
         })
         .catch(err=>{throw new Error(err)});
@@ -21,9 +25,9 @@ exports.purchasePremium = async (req, res, next)=>{
 exports.transactionSuccess = async(req, res, next)=>{
     try{
     const {payment_id, order_id} = req.body;
-    const order = await Order.findOne({where: {orderId: order_id}});
-    const promise1 = await order.update({paymentId:payment_id, status: 'SUCCESSFUL'});
-    const promise2 = await req.user.update({isPremiumUser:true});
+    const order = await Order.findOne({orderId: order_id});
+    const promise1 = await order.updateOne({paymentId:payment_id, status: 'SUCCESSFUL'});
+    const promise2 = await req.user.updateOne({isPremiumUser:true});
     
     Promise.all([promise1, promise2]).then(()=>{
     res.status(202).json({success:true, message:'Transaction Successful'});

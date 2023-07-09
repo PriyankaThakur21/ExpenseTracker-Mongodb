@@ -8,12 +8,11 @@ const ForgotPassword = require('../models/forgotpassword')
 exports.forgotpassword = async(req, res, next)=>{
     try{
     const{email}= req.body;
-    const user = await User.findOne({where : { email }});
-    console.log(user);
+    const user = await User.findOne({email: email });
     if(user===null) return res.json('Email does not exist');
 
     const id = uuid.v4();
-    await ForgotPassword.create({id, isActive: true, userId: user.id});
+    await ForgotPassword.create({isActive: true, userId: user.id});
 
     const client = Sib.ApiClient.instance;
     const apiKey = client.authentications['api-key'];
@@ -44,7 +43,7 @@ exports.forgotpassword = async(req, res, next)=>{
 exports.resetpassword = async (req, res, next)=>{
     try{
     const id = req.params.id;
-    const forgotpasswordrequest = await ForgotPassword.findOne({where : {id: id}});
+    const forgotpasswordrequest = await ForgotPassword.findOne({_id: id});
     await forgotpasswordrequest.update({isActive: false});
                       res.send(`<form action="/updatepassword/${id}" method="get"><br><br>
                       <label for="newpassword">Enter New password</label><br><br>
@@ -60,11 +59,9 @@ exports.resetpassword = async (req, res, next)=>{
 exports.updatepassword = async (req, res, next)=>{
     try {
         const { newpassword } = req.query;
-        console.log(req.query)
-        console.log(req.body)
         const { resetpasswordid } = req.params;
-        const resetpasswordrequest = await ForgotPassword.findOne({ where : { id: resetpasswordid }})
-        const user = await User.findOne({where: { id : resetpasswordrequest.userId}})
+        const resetpasswordrequest = await ForgotPassword.findOne({_id: resetpasswordid})
+        const user = await User.findOne({_id : resetpasswordrequest.userId})
                 if(user) {
                     const saltRounds = 10;
                     bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -77,7 +74,7 @@ exports.updatepassword = async (req, res, next)=>{
                                 console.log(err);
                                 throw new Error(err);
                             }
-                            user.update({password: hash});
+                            user.updateOne({password: hash});
                             res.status(201).json('Successfuly update the new password')
                             })
                         });

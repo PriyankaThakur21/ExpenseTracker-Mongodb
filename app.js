@@ -4,18 +4,13 @@ const app = express();
 const cors = require('cors');
 app.use(cors());
 
-const sequelize = require('./database');
+const mongoose = require('mongoose');
 
 const UserRouter = require('./routers/users');
 const ExpenseRouter = require('./routers/expense');
 const OrderRouter = require('./routers/orders');
 const premiumFeatureRouter = require('./routers/premiumFeature');
 const forgotPasswordRouter = require('./routers/forgotpassword');
-
-const Users = require('./models/users');
-const Expenses = require('./models/expense');
-const Orders = require('./models/orders');
-const ForgotPasswordRequests = require('./models/forgotpassword')
 
 app.use(express.json());
 
@@ -25,17 +20,10 @@ app.use(OrderRouter);
 app.use(premiumFeatureRouter);
 app.use(forgotPasswordRouter);
 
-Users.hasMany(Expenses);
-Expenses.belongsTo(Users);
-Users.hasMany(Orders);
-Orders.belongsTo(Users);
-Users.hasMany(ForgotPasswordRequests);
-ForgotPasswordRequests.belongsTo(Users);
-
-sequelize.sync()
-.then((res)=>{
+mongoose.connect(process.env.MONGODB)
+.then(()=>{
     app.listen(3000);
-})
-.catch((err)=>{
+    console.log('connected');
+}).catch((err)=>{
     console.log(err);
 })
